@@ -364,7 +364,10 @@ function privateUpdateBlindPosWithCallback(blind, newPos, callbackFct, optionsPa
                 topic: "wms-vb-blind-position-update",
                 payload: {
                     snr: blind.snr, snrHex: blind.snrHex, name: blind.name,
-                    position: blind.posCurrent.pos, angle: blind.posCurrent.ang, moving: blind.posCurrent.moving
+                    position: blind.posCurrent.pos,
+                    angle: blind.posCurrent.ang,
+                    valance_1: blind.posCurrent.val,
+                    moving: blind.posCurrent.moving
                 }
             });
         }
@@ -414,32 +417,35 @@ function privateCopyWmsStatistics(objTo, objFrom) {
 
 //--------------------------------------------------------------------------------------------------
 class VnBlindPos {
-    constructor(pos, ang, moving) {
+    constructor(pos, ang, val, moving) {
         this.pos = NaN;
         this.ang = NaN;
+        this.val = NaN;
         this.moving = false;
 
         if (typeof pos === "object") {
             this.pos = parseInt(pos.pos);
             this.ang = parseInt(pos.ang);
+            this.val = parseInt(pos.val);
             this.moving = !!pos.moving; // !! converts anything to Boolean
         } else {
             this.pos = parseInt(pos);
             this.ang = parseInt(ang);
+            this.val = parseInt(val);
             this.moving = !!moving; // !! converts anything to Boolean
         }
 
-        if ((this.pos === NaN) || (this.ang === NaN)) {
-            throw "VnBlindPos: Constructor has to evaluate to VnBlindPos( <number pos>, <number ang>, <boolean moving> ) or VnBlindPos( { pos:<number>, ang:<number>, moving:<boolean> } ).";
+        if ((this.pos === NaN) || (this.ang === NaN || (this.val === NaN))) {
+            throw "VnBlindPos: Constructor has to evaluate to VnBlindPos( <number pos>, <number ang>, <number val>, <boolean moving> ) or VnBlindPos( { pos:<number>, ang:<number>, val:<number>, moving:<boolean> } ).";
         }
 
     }
 
-    equals(pos, ang, moving) {
+    equals(pos, ang, val, moving) {
         if ((typeof pos) === "number") {
-            return ((this.pos === pos) && (this.ang === ang) && (this.moving === moving));
+            return ((this.pos === pos) && (this.ang === ang) && (this.val === val) && (this.moving === moving));
         } else if ((typeof pos.pos) === "number") {
-            return ((this.pos === pos.pos) && (this.ang === pos.ang) && (this.moving === pos.moving));
+            return ((this.pos === pos.pos) && (this.ang === pos.ang) && (this.val === val) && (this.moving === pos.moving));
         }
     }
 }
@@ -655,9 +661,6 @@ class Stick {
             } else if (stickObj.vnBlinds[i].snrHex === id) {
                 ret = i;
                 i = stickObj.vnBlinds.length;
-            } else if (stickObj.vnBlinds[i].name === id) {
-                ret = i;
-                i = stickObj.vnBlinds.length;
             }
         }
         return ret;
@@ -693,8 +696,8 @@ class Stick {
         blind.snr = snr;
         blind.snrHex = wmsUtil.snrNumToHex(snr);
         blind.name = name;
-        blind.posRequested = new VnBlindPos(0, 0, false/*moving*/);
-        blind.posCurrent = new VnBlindPos(-1, 0, false/*moving*/);
+        blind.posRequested = new VnBlindPos(0, 0, 0, false/*moving*/);
+        blind.posCurrent = new VnBlindPos(-1, 0, 0, false/*moving*/);
         blind.creationTs = new Date();
         privateInitWmsStatistics(blind);
 
@@ -861,8 +864,8 @@ class Stick {
     }
 
     // ~ ~ method ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
-    vnBlindSetPosition(id, position, angle) {
-        log.silly("vnBlindSetPosition( (" + (typeof id) + ") \"" + id + "\", " + position + ", " + angle + " )");
+    vnBlindSetPosition(id, position, angle, valance_1) {
+        log.silly("vnBlindSetPosition( (" + (typeof id) + ") \"" + id + "\", " + position + ", " + angle + ", " + valance_1 + " )");
         var stickObj = this;
         var blind = stickObj.vnBlindGet(id);
 
@@ -875,23 +878,26 @@ class Stick {
                     topic: "wms-vb-cmd-result-set-position", payload: {
                         error: error,
                         snr: blind.snr, snrHex: blind.snrHex, name: blind.name,
-                        position: blind.posRequested.pos, angle: blind.posRequested.ang
+                        position: blind.posRequested.pos,
+                        angle: blind.posRequested.ang,
+                        valance_1: blind.posRequested.val
                     }
                 });
             }
 
             if (!error) {
-                privateUpdateBlindPosWithCallback(blind, new VnBlindPos(blind.posCurrent.pos, blind.posCurrent.ang, true/*moving*/), stickObj.callback);
+                privateUpdateBlindPosWithCallback(blind, new VnBlindPos(blind.posCurrent.pos, blind.posCurrent.ang, blind.posCurrent.val, true/*moving*/), stickObj.callback);
             }
         }
 
         // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
         if (blind) {
-            blind.posRequested = new VnBlindPos(position, angle, true/*moving*/);
+            blind.posRequested = new VnBlindPos(position, angle, valance_1, true/*moving*/);
             privateCmdQueueEnqueue(stickObj, new wmsUtil.wmsMsgNew("blindMoveToPos", blind.snr, {
                 pos: position,
-                ang: angle
+                ang: angle,
+                val: valance_1
             }), vnBlindSetPositionCompletion);
             setTimeout(function () {
                 privateCmdQueueProcess(stickObj);
@@ -924,7 +930,7 @@ class Stick {
             if (!error) {
                 privateUpdateBlindPosWithCallback(
                     blind,
-                    new VnBlindPos(wmsMsgRcv.params.position, wmsMsgRcv.params.angle, wmsMsgRcv.params.moving),
+                    new VnBlindPos(wmsMsgRcv.params.position, wmsMsgRcv.params.angle, wmsMsgRcv.params.val, wmsMsgRcv.params.moving),
                     stickObj.callback, options);
             }
         }

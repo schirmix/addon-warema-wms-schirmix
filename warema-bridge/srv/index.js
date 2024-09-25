@@ -173,12 +173,14 @@ function registerDevice(element) {
                     ...base_device,
                     model: model
                 },
-                position_open: 0,
-                position_closed: 100,
+                position_open: 100,
+                position_closed: 0,
                 state_topic: 'warema/' + element.snr + '/state',
                 command_topic: 'warema/' + element.snr + '/set',
                 position_topic: 'warema/' + element.snr + '/position',
+                valance_1_topic: 'warema/' + element.snr + '/valance_1',
                 set_position_topic: 'warema/' + element.snr + '/set_position',
+                set_valance_1_topic: 'warema/' + element.snr + '/set_valance_1',
             }
 
             break;
@@ -260,6 +262,10 @@ function callback(err, msg) {
                             client.publish('warema/' + msg.payload.snr + '/state', 'stopped', {retain: true});
                     }
                 }
+                if (typeof msg.payload.valance_1 !== "undefined") {
+                    devices[msg.payload.snr].valance_1 = msg.payload.valance_1;
+                    client.publish('warema/' + msg.payload.snr + '/valance_1', '' + msg.payload.valance_1, {retain: true})
+                }
                 if (typeof msg.payload.tilt !== "undefined") {
                     devices[msg.payload.snr].tilt = msg.payload.tilt;
                     client.publish('warema/' + msg.payload.snr + '/tilt', '' + msg.payload.angle, {retain: true})
@@ -302,6 +308,7 @@ client.on('connect', function () {
     client.subscribe([
         'warema/+/set',
         'warema/+/set_position',
+        'warema/+/set_valance_1',
         'warema/+/set_tilt',
         'homeassistant/status'
     ]);
@@ -336,12 +343,12 @@ client.on('message', function (topic, message) {
                     break;
                 case 'CLOSE':
                     log.debug('Closing ' + device);
-                    stickUsb.vnBlindSetPosition(device, 100)
+                    stickUsb.vnBlindSetPosition(device, 0, parseInt(devices[device]['angle']), 0)
                     client.publish('warema/' + device + '/state', 'closing');
                     break;
                 case 'OPEN':
                     log.debug('Opening ' + device);
-                    stickUsb.vnBlindSetPosition(device, 0);
+                    stickUsb.vnBlindSetPosition(device, 100, parseInt(devices[device]['angle']), 30);
                     client.publish('warema/' + device + '/state', 'opening');
                     break;
                 case 'STOP':
@@ -352,11 +359,15 @@ client.on('message', function (topic, message) {
             break;
         case 'set_position':
             log.debug('Setting ' + device + ' to ' + message + '%, angle ' + devices[device].angle);
-            stickUsb.vnBlindSetPosition(device, parseInt(message), parseInt(devices[device]['angle']))
+            stickUsb.vnBlindSetPosition(device, parseInt(message), parseInt(devices[device]['angle'], parseInt(devices[device]['valance_1'])))
+            break;
+        case 'set_valance_1':
+            log.debug('Setting ' + device + ' to ' + message + '%, valance_1 ' + devices[device].valance_1);
+            stickUsb.vnBlindSetPosition(device, parseInt(devices[device]['position']), parseInt(devices[device]['angle'], parseInt(message)))
             break;
         case 'set_tilt':
             log.debug('Setting ' + device + ' to ' + message + '°, position ' + devices[device].position);
-            stickUsb.vnBlindSetPosition(device, parseInt(devices[device]['position']), parseInt(message))
+            stickUsb.vnBlindSetPosition(device, parseInt(devices[device]['position']), parseInt(message), parseInt(devices[device]['valance_1']))
             break;
         default:
             log.info('Unrecognised command from HA')
