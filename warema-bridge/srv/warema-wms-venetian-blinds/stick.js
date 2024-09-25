@@ -66,7 +66,7 @@ function privateCmdQueueHasMsg(stickObj, msgType, snr) {
 
 //--------------------------------------------------------------------------------------------------
 function privateCmdQueueClearExpects(stickObj) {
-    if (stickObj.currentTimeout != undefined) {
+    if (stickObj.currentTimeout !== undefined) {
         clearTimeout(stickObj.currentTimeout);
         stickObj.currentTimeout = undefined;
     }
@@ -107,7 +107,7 @@ function privateCmdQueueProcess(stickObj) {
             }
             privateCmdQueueClearExpects(stickObj);
         } else {
-            log.W("cmdQueueTimeoutHdlr: Currently no MSG processing.");
+            log.error("cmdQueueTimeoutHdlr: Currently no MSG processing.");
         }
 
         setTimeout(function () {
@@ -700,7 +700,7 @@ class Stick {
         blind.snrHex = wmsUtil.snrNumToHex(snr);
         blind.name = name;
         blind.posRequested = new VnBlindPos(0, 0, 0, false/*moving*/);
-        blind.posCurrent = new VnBlindPos(-1, 0, 0, false/*moving*/);
+        blind.posCurrent = new VnBlindPos(-1, 0, -1, false/*moving*/);
         blind.creationTs = new Date();
         privateInitWmsStatistics(blind);
 
@@ -906,7 +906,7 @@ class Stick {
                 privateCmdQueueProcess(stickObj);
             }, DELAY_MSG_PROC);
         } else {
-            console.error("vnBlindSetPosition: Cannot find blind \"" + id + "\".");
+            log.error("vnBlindSetPosition: Cannot find blind \"" + id + "\".");
         }
     }
 
@@ -933,7 +933,7 @@ class Stick {
             if (!error) {
                 privateUpdateBlindPosWithCallback(
                     blind,
-                    new VnBlindPos(wmsMsgRcv.params.position, wmsMsgRcv.params.angle, wmsMsgRcv.params.val, wmsMsgRcv.params.moving),
+                    new VnBlindPos(wmsMsgRcv.params.position, wmsMsgRcv.params.angle, wmsMsgRcv.params.valance_1, wmsMsgRcv.params.moving),
                     stickObj.callback, options);
             }
         }
@@ -948,7 +948,7 @@ class Stick {
             var blind = stickObj.vnBlindGet(id);
 
             if (!blind) {
-                console.error("vnBlindGetPosition: Cannot find blind \"" + id + "\".");
+                log.error("vnBlindGetPosition: Cannot find blind \"" + id + "\".");
             } else {
                 privateCmdQueueEnqueue(stickObj, new wmsUtil.wmsMsgNew("blindGetPos", blind.snr, {}), vnBlindGetPositionCompletion);
                 setTimeout(function () {
@@ -1003,7 +1003,7 @@ class Stick {
                     stickObj.vnBlindGetPosition(blind.snr);
                 }
             } else {
-                console.error("vnBlindStop: Cannot find blind \"" + id + "\".");
+                log.error("vnBlindStop: Cannot find blind \"" + id + "\".");
             }
 
         }
@@ -1021,7 +1021,7 @@ class Stick {
                 privateCmdQueueProcess(stickObj);
             }, DELAY_MSG_PROC);
         } else {
-            console.error("vnBlindWaveRequest: Cannot find blind \"" + id + "\".");
+            log.error("vnBlindWaveRequest: Cannot find blind \"" + id + "\".");
         }
     }
 
@@ -1073,7 +1073,7 @@ class Stick {
                 privateCmdQueueProcess(stickObj);
             }, DELAY_MSG_PROC);
         } else {
-            console.error("slatTiltOver: Cannot find blind \"" + id + "\".");
+            log.error("slatTiltOver: Cannot find blind \"" + id + "\".");
         }
 
     }

@@ -358,15 +358,15 @@ client.on('message', function (topic, message) {
             }
             break;
         case 'set_position':
-            log.debug('Setting ' + device + ' to ' + message + '%, angle ' + devices[device].angle);
+            log.debug('Setting ' + device + ' to ' + message + '%, angle ' + devices[device].angle + ', ' + 'valance_1 ' + devices[device].valance_1);
             stickUsb.vnBlindSetPosition(device, parseInt(message), parseInt(devices[device]['angle'], parseInt(devices[device]['valance_1'])))
             break;
         case 'set_valance_1':
-            log.debug('Setting ' + device + ' to ' + message + '%, valance_1 ' + devices[device].valance_1);
+            log.debug('Setting ' + device + ' to ' + message + '%, valance_1 ' + devices[device].angle + ', ' + 'position ' + devices[device].position);
             stickUsb.vnBlindSetPosition(device, parseInt(devices[device]['position']), parseInt(devices[device]['angle'], parseInt(message)))
             break;
         case 'set_tilt':
-            log.debug('Setting ' + device + ' to ' + message + '°, position ' + devices[device].position);
+            log.debug('Setting ' + device + ' to ' + message + '°, position ' + devices[device].position + 'valance_1 ' + devices[device].valance_1);
             stickUsb.vnBlindSetPosition(device, parseInt(devices[device]['position']), parseInt(message), parseInt(devices[device]['valance_1']))
             break;
         default:
