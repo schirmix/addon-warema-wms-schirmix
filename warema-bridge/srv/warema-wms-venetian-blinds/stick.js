@@ -1040,7 +1040,7 @@ class Stick {
                 if (wmsMsgRcv.msgType === "position") {
                     if (!error) {
                         privateUpdateBlindPosWithCallback(blind,
-                            new VnBlindPos(wmsMsgRcv.params.position, wmsMsgRcv.params.angle, wmsMsgRcv.params.moving),
+                            new VnBlindPos(wmsMsgRcv.params.position, wmsMsgRcv.params.angle, wmsMsgRcv.params.valance_1, wmsMsgRcv.params.moving),
                             stickObj.callback);
 
                         // Positions: -100, -67, -33, 0, 33, 67 , 100
@@ -1050,16 +1050,16 @@ class Stick {
                         newAngle = Math.min(newAngle, 100);
 
 
-                        blind.posRequested = new VnBlindPos(wmsMsgRcv.params.position, newAngle, true/*moving*/);
+                        blind.posRequested = new VnBlindPos(wmsMsgRcv.params.position, newAngle, wmsMsgRcv.params.valance_1, true/*moving*/);
                         privateCmdQueueEnqueue(stickObj, new wmsUtil.wmsMsgNew("blindMoveToPos", blind.snr,
-                                {pos: blind.posRequested.pos, ang: blind.posRequested.ang}),
+                                {pos: blind.posRequested.pos, ang: blind.posRequested.ang, val: blind.posRequested.val}),
                             vnBlindSlatTiltOverCompletion);
                         setTimeout(function () {
                             privateCmdQueueProcess(stickObj);
                         }, DELAY_MSG_PROC);
                     }
                 } else {
-                    privateUpdateBlindPosWithCallback(blind, new VnBlindPos(blind.posCurrent.pos, blind.posCurrent.ang, true/*moving*/), stickObj.callback);
+                    privateUpdateBlindPosWithCallback(blind, new VnBlindPos(blind.posCurrent.pos, blind.posCurrent.ang, blind.posCurrent.val, true/*moving*/), stickObj.callback);
                 }
 
             }
