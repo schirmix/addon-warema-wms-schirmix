@@ -661,6 +661,9 @@ class Stick {
             } else if (stickObj.vnBlinds[i].snrHex === id) {
                 ret = i;
                 i = stickObj.vnBlinds.length;
+            } else if (stickObj.vnBlinds[i].name === id) {
+                ret = i;
+                i = stickObj.vnBlinds.length;
             }
         }
         return ret;
