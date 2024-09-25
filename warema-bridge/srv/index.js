@@ -173,8 +173,8 @@ function registerDevice(element) {
                     ...base_device,
                     model: model
                 },
-                position_open: 100,
-                position_closed: 0,
+                position_open: 0,
+                position_closed: 100,
                 state_topic: 'warema/' + element.snr + '/state',
                 command_topic: 'warema/' + element.snr + '/set',
                 position_topic: 'warema/' + element.snr + '/position',
@@ -343,12 +343,12 @@ client.on('message', function (topic, message) {
                     break;
                 case 'CLOSE':
                     log.debug('Closing ' + device);
-                    stickUsb.vnBlindSetPosition(device, 0, parseInt(devices[device]['angle']), 0)
+                    stickUsb.vnBlindSetPosition(device, 100, parseInt(devices[device]['angle']), 0)
                     client.publish('warema/' + device + '/state', 'closing');
                     break;
                 case 'OPEN':
                     log.debug('Opening ' + device);
-                    stickUsb.vnBlindSetPosition(device, 100, parseInt(devices[device]['angle']), 30);
+                    stickUsb.vnBlindSetPosition(device, 0, parseInt(devices[device]['angle']), 30);
                     client.publish('warema/' + device + '/state', 'opening');
                     break;
                 case 'STOP':
