@@ -261,7 +261,7 @@ function decodeStickCmd(rcv) {
                 params.unknown1 = payload.substr(0, 10);
                 params.prevPosition = wmsPosHexToPercent(payload.substr(10, 2));
                 params.prevAngle = wmsAngleHexToPercent(payload.substr(12, 2));
-                params.prevValance_1 = wmsValeHexToPercent(payload.substr(14, 2));
+                params.prevValance_1 = wmsValHexToPercent(payload.substr(14, 2));
                 params.prevValance_2 = payload.substr(16, 2);
                 params.unknown2 = payload.substr(18, 8);
                 break;
