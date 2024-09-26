@@ -180,7 +180,6 @@ function registerDevice(element) {
                 position_topic: 'warema/' + element.snr + '/position',
                 valance_1_topic: 'warema/' + element.snr + '/valance_1',
                 set_position_topic: 'warema/' + element.snr + '/set_position',
-                set_valance_1_topic: 'warema/' + element.snr + '/set_valance_1',
             }
 
             break;
@@ -308,7 +307,6 @@ client.on('connect', function () {
     client.subscribe([
         'warema/+/set',
         'warema/+/set_position',
-        'warema/+/set_valance_1',
         'warema/+/set_tilt',
         'homeassistant/status'
     ]);
@@ -355,15 +353,16 @@ client.on('message', function (topic, message) {
                     log.debug('Stopping ' + device);
                     stickUsb.vnBlindStop(device);
                     break;
+                case 'COMFORT':
+                    log.debug('COMFORT' + device);
+                    stickUsb.vnBlindSetPosition(device, 77, parseInt(devices[device]['angle']), 30);
+                    client.publish('warema/' + device + '/state', 'comfort');
+                    break;
             }
             break;
         case 'set_position':
             log.debug('Setting ' + device + ' to ' + message + '%, angle ' + devices[device].angle + ', ' + 'valance_1 ' + devices[device].valance_1);
             stickUsb.vnBlindSetPosition(device, parseInt(message), parseInt(devices[device]['angle'], parseInt(devices[device]['valance_1'])))
-            break;
-        case 'set_valance_1':
-            log.debug('Setting ' + device + ' to ' + message + '%, valance_1 ' + devices[device].angle + ', ' + 'position ' + devices[device].position);
-            stickUsb.vnBlindSetPosition(device, parseInt(devices[device]['position']), parseInt(devices[device]['angle'], parseInt(message)))
             break;
         case 'set_tilt':
             log.debug('Setting ' + device + ' to ' + message + '°, position ' + devices[device].position + 'valance_1 ' + devices[device].valance_1);
