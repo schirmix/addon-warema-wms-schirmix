@@ -253,9 +253,9 @@ function callback(err, msg) {
                     client.publish('warema/' + msg.payload.snr + '/position', '' + msg.payload.position, {retain: true})
 
                     if (msg.payload.moving === false) {
-                        if (msg.payload.position === 0)
+                        if (msg.payload.position === 100)
                             client.publish('warema/' + msg.payload.snr + '/state', 'open', {retain: true});
-                        else if (msg.payload.position === 100)
+                        else if (msg.payload.position === 0)
                             client.publish('warema/' + msg.payload.snr + '/state', 'closed', {retain: true});
                         else
                             client.publish('warema/' + msg.payload.snr + '/state', 'stopped', {retain: true});
