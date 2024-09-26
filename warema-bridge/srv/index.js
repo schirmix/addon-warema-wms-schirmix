@@ -353,11 +353,6 @@ client.on('message', function (topic, message) {
                     log.debug('Stopping ' + device);
                     stickUsb.vnBlindStop(device);
                     break;
-                case 'COMFORT':
-                    log.debug('COMFORT' + device);
-                    stickUsb.vnBlindSetPosition(device, 77, parseInt(devices[device]['angle']), 30);
-                    client.publish('warema/' + device + '/state', 'comfort');
-                    break;
             }
             break;
         case 'set_position':
