@@ -731,9 +731,17 @@ Moves the venetian blind to the desired position
 
 - **blindId**  
   This parameter may be the `snr`, the `snrHex` or the `name` of a venetian blind.
-- **position**  
-  Level of the blind in percent from 0 to 100. At position 0 the blind is completely opened. Set the `angle` to -100 to
-  completely retract the blind into the cover. At `position` 100 the blind is fully closed.
+- **position**
+  - **awning**
+    Level of the blind in percent from 0 to 100. At position 0 the blind is completely opened. Set the `angle` to -100
+    to completely retract the blind into the cover. At `position` 100 the blind is fully closed.
+    Fully closed valance is set on 0 percent, fully opened it is actually 33 percent.
+  - **valance**
+    Level of both blinds in percent from 0 to 100 send as an object in example:
+    ```js
+    {"awn": 'number',"val": 'number'}
+    ```
+
 - **angle**  
   Angle of the blind's slats in percent from -100 to 100. At `angle` -100 the slats are completely inclined inwards.
   At `angle` 0 the slats are in horizontal position. At `angle` 100 the slats are completely inclined outwards.
@@ -953,6 +961,8 @@ Your research is the basis for this package.
 
 ## Change Log
 
+- 2.1.0 September/29/2024
+  - Add valance controlling.
 - 2.0.4 May/25/2022
     - Removed debug output in logger.
     - Fixed version dependencies to proper(older) versions of serialport so module can be instaled on older raspberry pi
