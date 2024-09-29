@@ -356,13 +356,13 @@ client.on('message', function (topic, message) {
             }
             break;
         case 'set_position':
-            if (typeof message === 'number') {
+            if (!isNaN(message)) {
                 log.debug('Setting ' + device + ' to ' + message + '%, angle ' + devices[device].angle + ', ' + 'valance_1 ' + devices[device].valance_1);
                 stickUsb.vnBlindSetPosition(device, parseInt(message), parseInt(devices[device]['angle']), parseInt(devices[device]['valance_1']))
-            }
-            if (typeof message === 'object' && message !== null) {
-                log.debug('Setting ' + device + ' to position ' + message.awn + '% and valance ' + message.val + '%, angle ' + devices[device].angle);
-                stickUsb.vnBlindSetPosition(device, parseInt(message.awn), parseInt(devices[device]['angle']), parseInt(message.val))
+            } else {
+                const pos = JSON.parse(message);
+                log.debug('Setting ' + device + ' to position ' + pos.awn + '% and valance ' + pos.val + '%, angle ' + devices[device].angle);
+                stickUsb.vnBlindSetPosition(device, parseInt(pos.awn), parseInt(devices[device]['angle']), parseInt(pos.val))
             }
             break;
         case 'set_tilt':

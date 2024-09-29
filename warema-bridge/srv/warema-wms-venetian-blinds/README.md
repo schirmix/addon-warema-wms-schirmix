@@ -739,7 +739,7 @@ Moves the venetian blind to the desired position
   - **valance**
     Level of both blinds in percent from 0 to 100 send as an object in example:
     ```js
-    {awn='number',val='number'}
+    {"awn": 'number',"val": 'number'}
     ```
 
 - **angle**  
