@@ -307,7 +307,6 @@ client.on('connect', function () {
     client.subscribe([
         'warema/+/set',
         'warema/+/set_position',
-        'warema/+/set_position_valance',
         'warema/+/set_tilt',
         'homeassistant/status'
     ]);
@@ -347,7 +346,7 @@ client.on('message', function (topic, message) {
                     break;
                 case 'OPEN':
                     log.debug('Opening ' + device);
-                    stickUsb.vnBlindSetPosition(device, 100, parseInt(devices[device]['angle']), 30);
+                    stickUsb.vnBlindSetPosition(device, 100, parseInt(devices[device]['angle']), 33);
                     client.publish('warema/' + device + '/state', 'opening');
                     break;
                 case 'STOP':
@@ -357,12 +356,14 @@ client.on('message', function (topic, message) {
             }
             break;
         case 'set_position':
-            log.debug('Setting ' + device + ' to ' + message + '%, angle ' + devices[device].angle + ', ' + 'valance_1 ' + devices[device].valance_1);
-            stickUsb.vnBlindSetPosition(device, parseInt(message), parseInt(devices[device]['angle'], parseInt(devices[device]['valance_1'])))
-            break;
-        case 'set_position_valance':
-            log.debug('Setting ' + device + ' to ' + message + '%, angle ' + devices[device].angle + ', ' + 'position ' + devices[device].position);
-            stickUsb.vnBlindSetPosition(device, parseInt(devices[device]['position']), parseInt(devices[device]['angle']), parseInt(message))
+            if (typeof message === 'number') {
+                log.debug('Setting ' + device + ' to ' + message + '%, angle ' + devices[device].angle + ', ' + 'valance_1 ' + devices[device].valance_1);
+                stickUsb.vnBlindSetPosition(device, parseInt(message), parseInt(devices[device]['angle']), parseInt(devices[device]['valance_1']))
+            }
+            if (typeof message === 'object' && message !== null) {
+                log.debug('Setting ' + device + ' to position ' + message.awn + '% and valance ' + message.val + '%, angle ' + devices[device].angle);
+                stickUsb.vnBlindSetPosition(device, parseInt(message.awn), parseInt(devices[device]['angle']), parseInt(message.val))
+            }
             break;
         case 'set_tilt':
             log.debug('Setting ' + device + ' to ' + message + '°, position ' + devices[device].position + 'valance_1 ' + devices[device].valance_1);
